@@ -4,10 +4,10 @@ var jumptime = true;
 var invisibleground;
 var jungle,jungleimg,vsimg,vs;
 var arrow;
-var rockimg,cageimg;
+var rockimg,cageimg,pitimg;
 var deer,deerrun,deerjump;
 var selectno;
-var cg,rg;
+var cg,rg,pg;
 var play=1,end=0,start=3;
 var gamestate,playstate;
 var play,home,replay,gameover;
@@ -26,6 +26,7 @@ deerrun = loadAnimation("deerrun/1.png","deerrun/2.png","deerrun/3.png","deerrun
   
   jungleimg = loadImage("jungle1.png");
   rockimg = loadImage("stone.png");
+  pitimg = loadImage("pit.png");
   cageimg = loadImage("cage.png");
   playimg = loadImage("play.png");
   replayimg = loadImage("button/replay.png");
@@ -100,6 +101,7 @@ function setup() {
   
   cg = new Group();
   rg = new Group();
+  pg = new Group();
   
   score = 0;
   speed = 0;
@@ -167,12 +169,15 @@ function draw() {
     replay.visible = false;
       
   if(frameCount % 100 == 0){
-  selectno = Math.round(random(1,2));
+  selectno = Math.round(random(1,3));
   if(selectno == 1){
-    rock();
+    cage();
   }
   if(selectno == 2){
-   cage();
+   rock();
+  }
+  if(selectno == 3){
+   pit();
   }
   }
     if(frameCount % 10 == 0){
@@ -180,6 +185,7 @@ function draw() {
       speed -= 0.2;
       rg.setVelocityXEach(speed);
       cg.setVelocityXEach(speed);
+      pg.setVelocityXEach(speed);
       score = score + 1;
     }
     
@@ -187,10 +193,10 @@ function draw() {
     jumptime = false;
     cheetah.changeAnimation("jumping",cheetahjump);
     cheetah.frameDelay = 4;
-    cheetah.velocityY = -20;
+    cheetah.velocityY = -18;
     setTimeout(run,1300);
   }
-  if(deer.isTouching(cg) || deer.isTouching(rg)){
+  if(deer.isTouching(cg) || deer.isTouching(rg) || deer.isTouching(pg)){
     deer.velocityY = -12
   }
     if(cheetah.isTouching(cg)){
@@ -199,6 +205,7 @@ function draw() {
       cheetah.visible = false
       cg.destroyEach();
       rg.destroyEach();
+      pg.destroyEach();
     }
     if(cheetah.isTouching(rg)){
       gamestate = end;
@@ -206,6 +213,15 @@ function draw() {
       cheetah.visible = false
       rg.destroyEach();
       cg.destroyEach();
+      pg.destroyEach();
+    }
+    if(cheetah.isTouching(pg)){
+      gamestate = end;
+      jungle.velocityX = 0;
+      cheetah.visible = false
+      rg.destroyEach();
+      cg.destroyEach();
+      pg.destroyEach();
     }
   console.log("selectno = "+selectno);
   
@@ -254,4 +270,13 @@ function rock(){
   rock.velocityX = jungle.velocityX;
   rock.lifetime = 500;
   rg.add(rock);
+}
+function pit(){
+  var pit = createSprite(width+20,380);
+  pit.addImage(pitimg);
+  pit.scale = 0.2;
+  pit.setCollider("rectangle",0,0,700,300);
+  pit.velocityX = jungle.velocityX;
+  pit.lifetime = 500;
+  pg.add(pit);
 }
